@@ -1,96 +1,94 @@
 pipeline {
     agent any
-    
+
     stages {
-        stage('Build') {
+        stage('Stage 1: Build') {
             steps {
-                script {
-                    // Use Maven to build the code
-                    echo "Building the code using Maven"
-                    // Example Maven command:
-                    // sh 'mvn clean install'
+                echo 'Building the code using Maven'
+            }
+        }
+
+        stage('Stage 2: Unit and Integration Tests') {
+            steps {
+                echo 'Running unit tests using JUnit and integration tests using Selenium'
+            }
+            post {
+                always {
+                    sendEmailWithLog('Stage 2: Unit and Integration Tests')
                 }
             }
         }
-        stage('Unit and Integration Tests') {
+
+        stage('Stage 3: Code Analysis') {
             steps {
-                script {
-                    // Use a test automation tool like JUnit or TestNG for unit and integration tests
-                    echo "Running unit and integration tests"
-                    // Example test command:
-                    // sh 'mvn test'
+                echo 'Performing code analysis using SonarQube'
+            }
+        }
+
+        stage('Stage 4: Security Scan') {
+            steps {
+                echo 'Performing security scan using OWASP ZAP'
+            }
+            post {
+                always {
+                    sendEmailWithLog('Stage 4: Security Scan')
                 }
             }
         }
-        stage('Code Analysis') {
+
+        stage('Stage 5: Deploy to Staging') {
             steps {
-                script {
-                    // Integrate a code analysis tool like SonarQube or Checkstyle
-                    echo "Performing code analysis"
-                    // Example code analysis command:
-                    // sh 'sonar-scanner'
-                }
+                echo 'Deploying the application to the staging server'
             }
         }
-        stage('Security Scan') {
+
+        stage('Stage 6: Integration Tests on Staging') {
             steps {
-                script {
-                    // Integrate a security scanning tool like OWASP Dependency-Check or SonarQube
-                    echo "Performing security scan"
-                    // Example security scan command:
-                    // sh 'dependency-check.sh'
-                }
+                echo 'Running integration tests on the staging environment using Selenium'
             }
         }
-        stage('Deploy to Staging') {
+
+        stage('Stage 7: Deploy to Production') {
             steps {
-                script {
-                    // Deploy the application to a staging server (e.g., AWS EC2 instance)
-                    echo "Deploying to staging server"
-                    // Example deployment command:
-                    // sh 'aws deploy'
-                }
-            }
-        }
-        stage('Integration Tests on Staging') {
-            steps {
-                script {
-                    // Run integration tests on the staging environment
-                    echo "Running integration tests on staging"
-                    // Example integration test command:
-                    // sh 'run_integration_tests.sh'
-                }
-            }
-        }
-        stage('Deploy to Production') {
-            steps {
-                script {
-                    // Deploy the application to a production server (e.g., AWS EC2 instance)
-                    echo "Deploying to production server"
-                    // Example deployment command:
-                    // sh 'aws deploy'
-                }
+                echo 'Deploying the application to the production AWS EC2 instance server '
             }
         }
     }
-    
-    post {
-        success {
-            // Send notification email on success
-            always{
-                   mail to: "abdulmueezgujjar@gmail.com",
-                   body: "Pipeline execution successful",
-                   subject: "Pipeline Success Notification"
-            }
-        }
-        failure {
-            // Send notification email on failure
-            always{
-                     mail to: "abdulmueezgujjar@gmail.com",
-                     body: "Pipeline execution failed",
-                     subject: "Pipeline Failure Notification"
-            }
 
+    post {
+        always {
+            script {
+                def emailSubject = "${currentBuild.currentResult} - ${currentBuild.fullDisplayName}"
+                def emailBody = """
+                    Pipeline Status: ${currentBuild.currentResult}
+                    Build URL: ${env.BUILD_URL}
+                """
+
+                emailext(
+                    subject: emailSubject,
+                    body: emailBody,
+                    to: 'abdulmueezgujjar@gmail.com'
+                )
+            }
         }
+    }
+}
+
+def sendEmailWithLog(stageName) {
+    script {
+        def email_subject = "${currentBuild.currentResult} - ${currentBuild.fullDisplayName} - ${stageName}"
+        def emailBody = """
+            Stage: ${stageName}
+            Status: ${currentBuild.currentResult}
+            Build URL: ${env.BUILD_URL}
+            Console Output: ${currentBuild.rawBuild.getLog(200)}
+        """
+
+        emailext(
+            subject: email_subject,
+            body: emailBody,
+            to: 'abdulmueezgujjar@gmail.com',
+            attachLog: true
+        )
     }
 }
