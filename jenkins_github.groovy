@@ -80,7 +80,7 @@ pipeline {
             always{
                    mail to: "abdulmueezgujjar@gmail.com",
                    body: "Pipeline execution successful",
-                   subject: "Pipeline Success Notification",
+                   subject: "Pipeline Success Notification"
             }
         }
         failure {
@@ -88,7 +88,7 @@ pipeline {
             always{
                      mail to: "abdulmueezgujjar@gmail.com",
                      body: "Pipeline execution failed",
-                     subject: "Pipeline Failure Notification",
+                     subject: "Pipeline Failure Notification"
             }
 
         }
