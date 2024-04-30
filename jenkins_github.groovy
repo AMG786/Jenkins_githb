@@ -1,10 +1,3 @@
-/*
-
-   Created by Abdul Mueez
-   Created on 27/04/2024
-
-*/
-
 pipeline {
     agent any
     
