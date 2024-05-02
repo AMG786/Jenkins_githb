@@ -23,5 +23,5 @@ This Jenkins pipeline is designed to automate Continuous Integration (CI) and Co
 4. Ensure that the specified email address in the pipeline matches your desired recipient for notification emails.
 
 ## Demo
-video : 
+video : https://youtu.be/FMcDsUhKE4M
 
